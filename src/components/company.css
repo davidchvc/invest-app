@@ -1,0 +1,20 @@
+.oneCompany {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 30px;
+  margin-left: 30px;
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  font-size: larger;
+  background-color: green;
+  border-radius: 20px;
+  padding-left: 20px;
+}
+
+.oneCompany button {
+  margin-left: auto;
+  margin-right: 20px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  border: none;
+}
