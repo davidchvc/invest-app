@@ -17,6 +17,7 @@ function Addcompany() {
     Value: "",
     Precentage: "",
     Priority: "",
+    StartValue: "",
   };
   //function for save data after every change
   const reducer = (state, action) => {
@@ -169,6 +170,7 @@ function Addcompany() {
         value: Number(state.Value),
         precentage: Number(state.Precentage),
         priority: Number(state.Priority),
+        startValue: Number(state.StartValue),
       });
 
       dispatch({ type: "RESET" });
@@ -251,6 +253,20 @@ function Addcompany() {
           min={1}
           max={10}
           value={state.Priority}
+        />
+        <input
+          type="number"
+          onChange={(e) =>
+            dispatch({
+              type: "SET",
+              field: e.target.name,
+              value: e.target.value,
+            })
+          }
+          placeholder="startvalue"
+          name="StartValue"
+          min={1}
+          value={state.StartValue}
         />
         <input type="submit" value="ulozit" />
       </form>

@@ -5,11 +5,13 @@ import {
   deleteDoc,
   doc,
   getDocs,
+  updateDoc,
   setDoc,
 } from "firebase/firestore";
 import "./overallValues.css";
 
 function overallValues({ data, updateData, setOnlyDeposit, fetchData }) {
+  console.log("overallValues");
   //sum portofolio value
   const portfolioValue = data.reduce(
     (sum, item) => sum + Number(item.value || 0),
@@ -30,7 +32,7 @@ function overallValues({ data, updateData, setOnlyDeposit, fetchData }) {
 
     for (const company of updateDeposit)
       try {
-        await setDoc(doc(db, "primary", company.id), {
+        await updateDoc(doc(db, "primary", company.id), {
           name: company.name,
           value: Number(company.value + company.add).toFixed(2),
           precentage: Number(company.precentage),
@@ -59,17 +61,23 @@ function overallValues({ data, updateData, setOnlyDeposit, fetchData }) {
     // round every data expect of last where is sumed round unprecision
     const newData = rawData.map((item, index) => {
       if (index === rawData.length - 1) {
-        const correctedValue = Math.abs(
+        let correctedValue = Math.abs(
           Number((valueWithDeposit - roundedSum).toFixed(2))
         );
+        if (item.startValue !== null) {
+          correctedValue = correctedValue - item.startValue;
+        }
         return {
           ...item,
           expectedValue: correctedValue,
           deficit: (item.value - correctedValue).toFixed(2),
         };
       } else {
-        const rounded = Number(item.expectedValueRaw.toFixed(2));
+        let rounded = Number(item.expectedValueRaw.toFixed(2));
         roundedSum += rounded;
+        if (item.startValue !== null) {
+          rounded = rounded - item.startValue;
+        }
         return {
           ...item,
           expectedValue: rounded,
@@ -92,7 +100,7 @@ function overallValues({ data, updateData, setOnlyDeposit, fetchData }) {
           min={0}
           value={writedNumber}
           type="number"
-          placeholder="zadej vklad"
+          placeholder="Zadej vklad"
           onChange={(e) => {
             setDeposit(() => {
               return portfolioValue + Number(e.target.value);

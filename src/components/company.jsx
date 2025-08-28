@@ -1,6 +1,13 @@
 import { db } from "../firebase/config";
 import { useState, useEffect } from "react";
-import { collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
 import OverallValues from "./overallValues";
 import { NavLink } from "react-router-dom";
 import CoutAdding from "./countAdding";
@@ -33,6 +40,7 @@ function company() {
     };
 
     fetchData();
+    console.log(data);
   }, [refreshTrigger]);
   //function for erase company
   const deleteCompany = async (id) => {
@@ -43,10 +51,25 @@ function company() {
       console.error("Chyba při mazání:", err);
       setError(err);
     }
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  //function to set value to start(set expected value = 0)
+  const startCompany = async (id, value) => {
+    try {
+      await updateDoc(doc(db, "primary", id), {
+        startValue: Number(value),
+      });
+    } catch (err) {
+      console.error("nepovedlo se upravit hodnotu na start", err);
+    }
+    setRefreshTrigger((prev) => prev + 1);
   };
   console.log("pred zobrazenim", data);
   return (
     <div className="allCompany">
+      <div className="uci-top"></div>
+      <div className="uci-bottom"></div>
       <CoutAdding data={data} updateData={setData} deposit={deposit} />
       <OverallValues
         data={data}
@@ -54,25 +77,44 @@ function company() {
         setOnlyDeposit={setDeposit}
         fetchData={() => setRefreshTrigger((prev) => prev + 1)}
       />
-      <h1>Data z Firestore:</h1>
+      <h1>Portfolio:</h1>
       {error && <h2>Chyba: {error.message}</h2>}
 
-      {data.map((item) => (
-        <div key={item.id} className="oneCompany">
-          <p>Id: {item.id}</p>
-          <p>Name: {item.name}</p>
-          <p>Value: {item.value}</p>
-          <p>Precentage: {item.precentage}</p>
-          <p>Expected: {item.expectedValue}</p>
-          <p>Deficit: {item.deficit}</p>
-          {item.add !== 0 && <p>add: {item.add}</p>}
-          <button onClick={() => deleteCompany(item.id)}>Smazat</button>
+      <div className="companyList">
+        <div className="header">
+          <p>Id</p>
+          <p>Name</p>
+          <p>Value</p>
+          <p>Precentage</p>
+          <p>Expected</p>
+          <p>Deficit</p>
+          <p>Add</p>
+          <p>Actions</p>
         </div>
-      ))}
 
-      <NavLink to="/addCompany">
-        <button>Pridat novou</button>
-      </NavLink>
+        {data.map((item) => (
+          <div key={item.id} className="oneCompany">
+            <p>{item.id}</p>
+            <p>{item.name}</p>
+            <p>{Number(item.value).toFixed(2)}</p>
+            <p>{Number(item.precentage).toFixed(2)}</p>
+            <p>{Number(item.expectedValue).toFixed(2)}</p>
+            <p>{Number(item.deficit).toFixed(2)}</p>
+            <p>{item.add !== 0 ? item.add : "-"}</p>
+            <div className="actions">
+              <button onClick={() => deleteCompany(item.id)}>Smazat</button>
+              <button onClick={() => startCompany(item.id, item.expectedValue)}>
+                Nastavit start
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="konec">
+        <NavLink to="/addCompany">
+          <button>Pridat novou</button>
+        </NavLink>
+      </div>
     </div>
   );
 }

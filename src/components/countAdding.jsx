@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 function countAdding({ data, updateData, deposit }) {
-  console.log("dfahahadfhdsfh", deposit);
+  console.log("count adding", deposit);
   const deficitList = data.map((item) => item.deficit);
   useEffect(() => {
     //if condotion to make sure that this doesn work if it is not necesary
